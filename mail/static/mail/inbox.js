@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
   
   // Show compose view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#mailbox-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   
   // Clear out composition fields
@@ -21,7 +22,7 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
   
-  // Add event listener to submit button
+  // Send email
   document.querySelector('form').onsubmit = () => {
     fetch('/emails', {
       method: 'POST',
@@ -31,12 +32,11 @@ function compose_email() {
           body: document.querySelector('#compose-body').value,
       })
     })
-    // .then(response => response.json())
-    // .then(result => {
-    //     // Print result
-    //     console.log(result);
-    // });
+
+    // Navigate to 'Sent' mailbox
     document.querySelector('#sent').click();
+
+    // Add 'return false' to avoid reloading the page when the form is submitted
     return false;
   }
 }
@@ -44,32 +44,48 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#mailbox-view').style.display = 'block';
+  document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  document.querySelector('#mailbox-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
   // Get the emails
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(emails => {
-        // Print emails
-        console.log(emails);
-        emails.forEach((email) => {
-          const display_email = document.createElement('div');
-          display_email.classList.add('email-preview')
-          if (mailbox === 'sent') {
-            who = `To: ${email.recipients}`
-          } else {
-            who = `From: ${email.sender}`
-          }
-          display_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.timestamp}</p>`;
-          display_email.addEventListener('click', () => {
-            console.log('This element has been clicked!')
-          });
-          document.querySelector('#emails-view').append(display_email);
+      // Display a preview for each email in the mailbox
+      emails.forEach((email) => {
+        const preview_email = document.createElement('div');
+        preview_email.classList.add('email-preview');
+        if (mailbox === 'sent') {
+          who = `To: ${email.recipients}`;
+        } else {
+          who = `From: ${email.sender}`;
+        }
+        preview_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.timestamp}</p>`;
+        preview_email.addEventListener('click', () => {
+          load_email(email.id)
         });
+        document.querySelector('#mailbox-view').append(preview_email);
+      });
+    }); 
+}
+
+function load_email(email_id) {
+
+  // Show the email and hide other views
+  document.querySelector('#mailbox-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+  document.querySelector('#compose-view').style.display = 'none';
+
+  // Display detailed email view
+  fetch(`/emails/${email_id}`)
+    .then(response => response.json())
+    .then(email => {
+        const display_email = document.createElement('div')
+        display_email.innerHTML = `<b>From:</b> ${email.sender}<br><b>To:</b> ${email.recipients}<br><b>Subject:</b> ${email.subject}<br><b>Timestamp:</b> ${email.timestamp}<hr><p>${email.body}</p>`
+        document.querySelector('#email-view').append(display_email);
     });
-  
 }
