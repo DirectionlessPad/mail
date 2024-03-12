@@ -64,7 +64,7 @@ function load_mailbox(mailbox) {
           } else {
             who = `From: ${email.sender}`
           }
-          display_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.body}</p>`;
+          display_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.timestamp}</p>`;
           document.querySelector('#emails-view').append(display_email);
         });
     });
