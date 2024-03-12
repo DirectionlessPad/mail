@@ -65,6 +65,9 @@ function load_mailbox(mailbox) {
             who = `From: ${email.sender}`
           }
           display_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.timestamp}</p>`;
+          display_email.addEventListener('click', () => {
+            console.log('This element has been clicked!')
+          });
           document.querySelector('#emails-view').append(display_email);
         });
     });

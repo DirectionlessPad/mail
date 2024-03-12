@@ -8,3 +8,7 @@ textarea {
     border-color: black;
     background-color: grey;
 }
+
+.email-preview:hover {
+    cursor: pointer;
+}
