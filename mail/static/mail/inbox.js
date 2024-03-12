@@ -55,10 +55,16 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(emails => {
+
       // Display a preview for each email in the mailbox
       emails.forEach((email) => {
         const preview_email = document.createElement('div');
         preview_email.classList.add('email-preview');
+        if (!email.read) {
+          preview_email.classList.add('unread');
+        }
+
+        // Display email address based on if the user is the sender or receiver
         if (mailbox === 'sent') {
           who = `To: ${email.recipients}`;
         } else {
@@ -84,8 +90,15 @@ function load_email(email_id) {
   fetch(`/emails/${email_id}`)
     .then(response => response.json())
     .then(email => {
-        const display_email = document.createElement('div')
-        display_email.innerHTML = `<b>From:</b> ${email.sender}<br><b>To:</b> ${email.recipients}<br><b>Subject:</b> ${email.subject}<br><b>Timestamp:</b> ${email.timestamp}<hr><p>${email.body}</p>`
-        document.querySelector('#email-view').append(display_email);
+        document.querySelector('#email-view').innerHTML = `<b>From:</b> ${email.sender}<br><b>To:</b> ${email.recipients}<br><b>Subject:</b> ${email.subject}<br><b>Timestamp:</b> ${email.timestamp}<hr><p>${email.body}</p>`
     });
+  
+  // Update read property upon opening the email
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  })
+  return false;
 }
