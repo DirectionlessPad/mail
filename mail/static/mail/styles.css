@@ -12,6 +12,6 @@ textarea {
     cursor: pointer;
 }
 
-.unread {
+.read {
     background-color: grey;
 }

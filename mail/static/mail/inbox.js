@@ -60,8 +60,8 @@ function load_mailbox(mailbox) {
       emails.forEach((email) => {
         const preview_email = document.createElement('div');
         preview_email.classList.add('email-preview');
-        if (!email.read) {
-          preview_email.classList.add('unread');
+        if (email.read) {
+          preview_email.classList.add('read');
         }
 
         // Display email address based on if the user is the sender or receiver
