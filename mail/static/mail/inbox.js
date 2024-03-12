@@ -70,7 +70,7 @@ function load_mailbox(mailbox) {
         } else {
           who = `From: ${email.sender}`;
         }
-        preview_email.innerHTML = `<h4>${email.subject}</h4><p>${who}</p><p>${email.timestamp}</p>`;
+        preview_email.innerHTML = `<div class="container"><div class="row"><div class="col 4">${who}</div><div class="col 4">${email.subject}</div><div class="col 4" style="text-align:right;">${email.timestamp}</div></div></div>`;
         preview_email.addEventListener('click', () => {
           load_email(email.id)
         });
