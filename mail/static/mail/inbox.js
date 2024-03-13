@@ -85,14 +85,14 @@ function load_mailbox(mailbox) {
         
         // If the email is clicked then go to detailed email view
         preview_email.addEventListener('click', () => {
-          load_email(email.id)
+          load_email(email.id, mailbox)
         })
         document.querySelector('#mailbox-view').append(preview_email)
       })
     }) 
 }
 
-function load_email(email_id) {
+function load_email(email_id, mailbox) {
 
   // Show the email and hide other views
   document.querySelector('#mailbox-view').style.display = 'none'
@@ -111,24 +111,27 @@ function load_email(email_id) {
       document.querySelector('#email-view').innerHTML = `${sender}<br>${receivers}<br>${subject}<br>${timestamp}<hr>${body}<hr>`
       
       // Create button for archiving/unarchiving the email
-      const archive_btn = document.createElement('button')
-      document.querySelector('#email-view').append(archive_btn)
-      if (email.archived) {
-        archive_btn.innerHTML = "Unarchive"
-      } else {
-        archive_btn.innerHTML = "Archive"
-      }
-      archive_btn.addEventListener('click', () => {
-        fetch(`/emails/${email_id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-              archived: !email.archived
+      if (mailbox != 'sent') {
+        const archive_btn = document.createElement('button')
+        document.querySelector('#email-view').append(archive_btn)
+        if (email.archived) {
+          archive_btn.innerHTML = "Unarchive"
+        } else {
+          archive_btn.innerHTML = "Archive"
+        }
+        archive_btn.addEventListener('click', () => {
+          fetch(`/emails/${email_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                archived: !email.archived
+            })
           })
-        })
 
-        // Reloading the page will return the user to the inbox view
-        location.reload()
-      })
+          // Reloading the page will return the user to the inbox view
+          location.reload()
+        })
+      }
+      
     })
   
   // Update read property upon opening the email
