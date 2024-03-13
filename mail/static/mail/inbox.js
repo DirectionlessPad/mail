@@ -58,10 +58,11 @@ function load_mailbox(mailbox) {
 
       // Display a preview for each email in the mailbox
       emails.forEach((email) => {
-        const preview_email = document.createElement('div');
-        preview_email.classList.add('email-preview');
+        const preview_email = createCustomElement('div','email-preview')
         if (email.read) {
           preview_email.classList.add('read');
+        } else {
+          preview_email.classList.add('unread');
         }
 
         // Display email address based on if the user is the sender or receiver
@@ -70,7 +71,19 @@ function load_mailbox(mailbox) {
         } else {
           who = `From: ${email.sender}`;
         }
-        preview_email.innerHTML = `<div class="container"><div class="row"><div class="col 4">${who}</div><div class="col 4">${email.subject}</div><div class="col 4" style="text-align:right;">${email.timestamp}</div></div></div>`;
+
+        // Create HTML for the email preview
+        const preview_container = createCustomElement('div', 'container')
+        const preview_row = createCustomElement('div', 'row')
+        
+        who = `<div class="col 4">${who}</div>`;
+        subject = `<div class="col 4">${email.subject}</div>`;
+        timestamp = `<div class="col 4" style="text-align:right;">${email.timestamp}</div>`;
+        preview_row.innerHTML = `${who}${subject}${timestamp}`
+        preview_container.append(preview_row)
+        preview_email.append(preview_container)
+        
+        // If the email is clicked then go to detailed email view
         preview_email.addEventListener('click', () => {
           load_email(email.id)
         });
@@ -90,7 +103,12 @@ function load_email(email_id) {
   fetch(`/emails/${email_id}`)
     .then(response => response.json())
     .then(email => {
-        document.querySelector('#email-view').innerHTML = `<b>From:</b> ${email.sender}<br><b>To:</b> ${email.recipients}<br><b>Subject:</b> ${email.subject}<br><b>Timestamp:</b> ${email.timestamp}<hr><p>${email.body}</p>`
+      sender = `<b>From:</b> ${email.sender}`
+      receivers = `<b>To:</b> ${email.recipients}`
+      subject = `<b>Subject:</b> ${email.subject}`
+      timestamp = `<b>Timestamp:</b> ${email.timestamp}`
+      body = `<p>${email.body}</p>`
+      document.querySelector('#email-view').innerHTML = `${sender}<br>${receivers}<br>${subject}<br>${timestamp}<hr>${body}`
     });
   
   // Update read property upon opening the email
@@ -101,4 +119,15 @@ function load_email(email_id) {
     })
   })
   return false;
+}
+
+function createCustomElement(tag, classes) {
+  classes = [].concat(classes);
+  element = document.createElement(tag);
+  if (classes) {
+    classes.forEach((htmlclass) => {
+      element.classList.add(htmlclass);
+    })
+  }
+  return element;
 }
