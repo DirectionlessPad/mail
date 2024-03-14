@@ -31,3 +31,4 @@ Potential improvements:
 -set initial limit on loaded emails/page height
 -implement load more emails upon reaching bottom of the page
 -prioritise load order based on when the email was received
+-change inbox.js to use React
