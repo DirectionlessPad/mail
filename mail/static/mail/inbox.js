@@ -116,7 +116,7 @@ function load_email(email_id, mailbox) {
         } else {
           subject = `Re: ${email.subject}`
         }
-        body = `On ${email.timestamp} ${email.sender} wrote:\n${email.body}`
+        body = `On ${email.timestamp} ${email.sender} wrote:\n${email.body}.\n`
         console.log(recipient)
         compose_email(recipients=recipient, subject=subject, body=body)
       })
