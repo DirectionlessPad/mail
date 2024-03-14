@@ -170,4 +170,5 @@ function show_view(view) {
     div.style.display = 'none'
   })
   document.querySelector(view).style.display = 'block'
+  history.pushState({page: view}, "", view)
 }
