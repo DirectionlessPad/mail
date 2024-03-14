@@ -172,3 +172,7 @@ function show_view(view) {
   document.querySelector(view).style.display = 'block'
   history.pushState({page: view}, "", view)
 }
+
+window.onpopstate = function(event) {
+  show_view(event.state.page)
+}
