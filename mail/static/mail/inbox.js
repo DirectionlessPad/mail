@@ -4,23 +4,20 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'))
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'))
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'))
-  document.querySelector('#compose').addEventListener('click', compose_email)
+  document.querySelector('#compose').addEventListener('click', () => compose_email())
 
   // By default, load the inbox
   load_mailbox('inbox')
 })
 
-function compose_email() {
+function compose_email(recipients = '', subject = '', body = '') {
   
-  // Show compose view and hide other views
-  document.querySelector('#mailbox-view').style.display = 'none'
-  document.querySelector('#email-view').style.display = 'none'
-  document.querySelector('#compose-view').style.display = 'block'
-  
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = ''
-  document.querySelector('#compose-subject').value = ''
-  document.querySelector('#compose-body').value = ''
+  show_view('#compose-view')
+
+  // Clear out/pre-fill composition fields
+  document.querySelector('#compose-recipients').value = recipients
+  document.querySelector('#compose-subject').value = subject
+  document.querySelector('#compose-body').value = body
   
   // Send email
   document.querySelector('form').onsubmit = () => {
@@ -43,10 +40,8 @@ function compose_email() {
 
 function load_mailbox(mailbox) {
   
-  // Show the mailbox and hide other views
-  document.querySelector('#mailbox-view').style.display = 'block'
-  document.querySelector('#email-view').style.display = 'none'
-  document.querySelector('#compose-view').style.display = 'none'
+  // Reload any updates
+  show_view('#mailbox-view')
 
   // Show the mailbox name
   document.querySelector('#mailbox-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`
@@ -58,7 +53,7 @@ function load_mailbox(mailbox) {
 
       // Display a preview for each email in the mailbox
       emails.forEach((email) => {
-        const preview_email = createCustomElement('div','email-preview')
+        const preview_email = create_custom_element('div','email-preview')
         if (email.read) {
           preview_email.classList.add('read')
         } else {
@@ -73,8 +68,8 @@ function load_mailbox(mailbox) {
         }
 
         // Create HTML for the email preview
-        const preview_container = createCustomElement('div', 'container')
-        const preview_row = createCustomElement('div', 'row')
+        const preview_container = create_custom_element('div', 'container')
+        const preview_row = create_custom_element('div', 'row')
         
         who = `<div class="col 4">${who}</div>`
         subject = `<div class="col 4">${email.subject}</div>`
@@ -94,10 +89,7 @@ function load_mailbox(mailbox) {
 
 function load_email(email_id, mailbox) {
 
-  // Show the email and hide other views
-  document.querySelector('#mailbox-view').style.display = 'none'
-  document.querySelector('#email-view').style.display = 'block'
-  document.querySelector('#compose-view').style.display = 'none'
+  show_view('#email-view')
 
   // Display detailed email view
   fetch(`/emails/${email_id}`)
@@ -110,6 +102,25 @@ function load_email(email_id, mailbox) {
       body = `<p>${email.body}</p>`
       document.querySelector('#email-view').innerHTML = `${sender}<br>${receivers}<br>${subject}<br>${timestamp}<hr>${body}<hr>`
       
+      // Create button for repling to email
+      const reply_btn = document.createElement('button')
+      document.querySelector('#email-view').append(reply_btn)
+      reply_btn.innerHTML = "Reply"
+      reply_btn.addEventListener('click', () => {
+        // show_view('#compose-view')
+
+        // Pre-fill composition fields
+        recipient = email.sender
+        if (email.subject.startsWith("Re: ")) {
+          subject = email.subject
+        } else {
+          subject = `Re: ${email.subject}`
+        }
+        body = `On ${email.timestamp} ${email.sender} wrote:\n${email.body}`
+        console.log(recipient)
+        compose_email(recipients=recipient, subject=subject, body=body)
+      })
+
       // Create button for archiving/unarchiving the email
       if (mailbox != 'sent') {
         const archive_btn = document.createElement('button')
@@ -143,7 +154,7 @@ function load_email(email_id, mailbox) {
   })
 }
 
-function createCustomElement(tag, classes) {
+function create_custom_element(tag, classes) {
   classes = [].concat(classes)
   element = document.createElement(tag)
   if (classes) {
@@ -152,4 +163,11 @@ function createCustomElement(tag, classes) {
     })
   }
   return element
+}
+
+function show_view(view) {
+  document.querySelector('#mailbox-view').style.display = 'none'
+  document.querySelector('#email-view').style.display = 'none'
+  document.querySelector('#compose-view').style.display = 'none'
+  document.querySelector(view).style.display = 'block'
 }
