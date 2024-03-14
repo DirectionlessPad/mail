@@ -166,8 +166,8 @@ function create_custom_element(tag, classes) {
 }
 
 function show_view(view) {
-  document.querySelector('#mailbox-view').style.display = 'none'
-  document.querySelector('#email-view').style.display = 'none'
-  document.querySelector('#compose-view').style.display = 'none'
+  document.querySelectorAll('div.page').forEach(div => {
+    div.style.display = 'none'
+  })
   document.querySelector(view).style.display = 'block'
 }
